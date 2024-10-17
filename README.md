@@ -36,7 +36,7 @@ Learn the basics of Security Information and Event Management (SIEM) with this b
 - Under region select: (Canada) Canada Central
 - Under Image select: Windows 10 pro, version 22H2 - Gen2
 - Availability zone: Zone 1
-- Under size: Standard_B1s - 1 vcpu, 1 GiB memory
+- Under size: Standard D2s v3 (2 vcpus, 8 GiB memory)
 - Create a username and password - <b>don’t forget credentials</b>
 - Finally, check confirm box - leaving the rest in their default options
 
@@ -189,8 +189,56 @@ Learn the basics of Security Information and Event Management (SIEM) with this b
 
 <h2>Step 12E: Secure connection between honeypot-vm and log analytics</h2>
 
-- Under law-honeypot1 > General > Logs > search SecurityEvent and click blue Run button.
+- Under lawhoneypot > General > Logs > search SecurityEvent and click blue Run button.
 - Give it a moment, and voila! It returns the same security logs window from our honeypot-vm’s Event Viewer.
 - Give it some time and search our custom: FAILED_RDP_WITH_GEO_CL will it will return our sample logs.
 
-![image alt]()
+![image alt](https://github.com/CarlGoc/Azure-Sentinel-SIEM-Guide-Live-Attacks/blob/7d11c654614b764c96f37f31ebe7e9a7fd12e2ba/Images/s12e.png)
+
+<h2>Step 13: Separating Each Value in the Log Query</h2>
+
+![image alt](https://github.com/CarlGoc/Azure-Sentinel-SIEM-Guide-Live-Attacks/blob/7d11c654614b764c96f37f31ebe7e9a7fd12e2ba/Images/s13.png)
+
+<h2>Step 14A: Set up our map within Microsoft Sentinel</h2>
+
+- Next, we will map out our logs within Sentinel with the extracted data - to see where in the world is our vm is being attacked from.
+- Search and click Microsoft Sentinel > choose law-honeypot1 and under Threat management choose Workbooks > click + Add workbook
+- Click edit > click the “ … “ on the right side on the screen and remove the two widgets.
+- Click Add > Add query and paste the following into the query:
+
+![image alt](https://github.com/CarlGoc/Azure-Sentinel-SIEM-Guide-Live-Attacks/blob/7d11c654614b764c96f37f31ebe7e9a7fd12e2ba/Images/s14a.png)
+
+<h2>Step 14B: Threat visualization</h2>
+
+- Click Run Query
+- Troubleshooting: if you run into any issue with a CF (custom field) try removing the troubling CF from the query and run search again.
+- From the visualization drop box select Map
+- In map settings > layout setting (on the right of screen):
+- Under Location Info Using Select longitude/latitude (if longitude/latitude gives you trouble select country or region, and vice versa)
+- Under latitude: latitude_CF
+- Under longitude: longitude_CF
+- Scroll down to find Metric Settings:
+- Under Metric Label select label_CF
+- Metric Value: event_count
+- Hit Apply …
+- On the map you see where you’re being attacked from!
+- You might only see the failed logins you made, but after some time refresh and look again.
+- Pretty rad if you take a look at the actual logs you can see source IP, time, country, user name and other details!
+- Remember too, these logs are only reporting back failed RDP attempts… who knows what other attacks are being attempted.
+
+![image alt](https://github.com/CarlGoc/Azure-Sentinel-SIEM-Guide-Live-Attacks/blob/7d11c654614b764c96f37f31ebe7e9a7fd12e2ba/Images/s14b.png)
+
+<h2>Step 14C: Finish/save threat visualization</h2>
+
+- Hit > save and close
+- Hit the floppy disk at the top to save the map.
+- Title: Failed RDP World Map > Location: West US 2 > Resource group: honeypot-lab > click Apply
+- And we’re done! - by now people should be attacking your vm, congrats!
+- You can hit the refresh icon near the top of the map (make sure Powershell script is running) to load more logs into the map
+- Also, you can click Auto refresh ON to refresh every so often.
+
+<h2>FINAL STEP: Deprovision resources</h2>
+
+- Once you are done with the lab delete the resources, otherwise they will eat away from your free credit (deprovisioning is also a good thing to keep in mind at the enterprise level)
+- Search and click Resource group > honeypot-lab > Delete resource group
+- Type the name honeypot-lab to confirm deletion
